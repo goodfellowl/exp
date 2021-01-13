@@ -1,0 +1,23 @@
+train_dataset: tiered
+train_dataset_args: {split: train}
+
+val_dataset: tiered
+val_dataset_args: {split: test}
+
+
+model_args: 
+    encoder: resnet12
+
+load_encoder: ./save/encoder_tiered_resnet12_Cos_fs_test_256_rot_dropout/epoch_146.pth
+
+n_way: 5
+n_shot: 5
+n_query: 15
+train_batches: 800
+
+save_epoch: 1
+max_epoch: 50
+optimizer: sgd
+optimizer_args: {lr: 0.001, weight_decay: 5.e-4}
+
+visualize_datasets: True

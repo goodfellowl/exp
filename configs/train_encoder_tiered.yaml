@@ -1,0 +1,19 @@
+train_dataset: tiered
+train_dataset_args: {split: train}
+
+val_dataset: tiered
+val_dataset_args: {split: test}
+
+
+model_args:
+    encoder: resnet12
+    classifier: Cos
+    classifier_n_classes: 351
+
+batch_size: 512
+max_epoch: 150
+optimizer: sgd
+optimizer_args: {lr: 0.1, weight_decay: 5.e-4, milestones: [40, 80, 100, 120]}
+
+save_epoch: 1
+visualize_datasets: true

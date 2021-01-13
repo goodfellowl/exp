@@ -1,0 +1,6 @@
+dataset: mini
+dataset_args: {split: test}
+
+load: ./save/mini-5-way-5-shot_resnet12_centerloss/epoch_17.pth
+# load_encoder: ./save/encoder_mini_resnet12_linear_fs_test_128/epoch_last.pth
+
