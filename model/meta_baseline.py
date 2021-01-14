@@ -7,7 +7,6 @@ from model.WRN28 import WideResNet
 from model.convnet4 import Conv4
 import utils
 from model.tpn import LabelPropagation
-from model.sim_label_protage import SimLabel
 from model.mlp import MLPNetwork, MLP
 
 
@@ -28,7 +27,6 @@ class MetaBaseline(nn.Module):
 
         # self.lp = LabelPropagation(in_dim=in_dim)
         self.mlp = MLPNetwork(in_dim=in_dim)
-        self.mlp1 = MLP(in_dim=in_dim)
         
     def forward(self, x_shot, y_shot, x_query, y_query):
         '''
@@ -51,10 +49,10 @@ class MetaBaseline(nn.Module):
         x_shot, x_query = x_all[:len(x_shot)], x_all[-len(x_query):]
         
         # att_emb = self.lp(x_shot, y_shot, x_query, y_query)
-        # x_shot, x_query = att_emb[:len(x_shot)], att_emb[-len(x_query):]
+        # x_shot, x_query = att_emb[:len(x_shot)], att_emb[-len(x_query):]   
         # proto = x_shot.reshape(n_way, n_shot, -1).mean(dim=1)
-
-        proto, feature = self.mlp(x_shot)
-        x_query = self.mlp1(x_query)
+        
+        proto, feature_shot, feature_query = self.mlp(x_shot, x_query)
+        x_query = feature_query
         logits = utils.compute_logits(x_query, proto, metric=self.method, temp=self.temper)
-        return logits, proto, feature.reshape(n_way, n_shot, -1)
+        return logits, proto, feature_shot.reshape(n_way, n_shot, -1)
