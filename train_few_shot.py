@@ -85,17 +85,16 @@ def main(config):
     utils.log('num params: {}'.format(utils.compute_n_params(model)))
     # optimizer, lr_scheduler = utils.make_optimizer(model.parameters(), config['optimizer'], **config['optimizer_args'])
 
-    base_params = list(map(id, model.encoder.parameters()))
-    logits_params = filter(lambda p: id(p) not in base_params, model.parameters())
-    params = [
-        {"params": logits_params, "lr":0.001},
-        {"params": model.encoder.parameters(), "lr": 0.0002}]
-    optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=5.e-4)
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+    # base_params = list(map(id, model.encoder.parameters()))
+    # logits_params = filter(lambda p: id(p) not in base_params, model.parameters())
+    # params = [
+    #     {"params": logits_params, "lr":0.001},
+    #     {"params": model.encoder.parameters(), "lr": 0.0002}]
+    # optimizer = torch.optim.SGD(params, momentum=0.9, weight_decay=5.e-4)
+    # lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
     # lr_scheduler = None
     #####################loss####################
-    centerloss = CenterLoss()
-    weighted_ce = WeightedCrossEntropy()
+    center_loss = CenterLoss()
     ######## train ######################
  
     max_epoch = config['max_epoch']
@@ -129,15 +128,9 @@ def main(config):
             
             logits, center, feat = model(x_shot, y_shot, x_query, y_query)
             logits = logits.view(-1, n_train_way)
-            closs = centerloss(center, feat, y_shot)
-            loss = F.cross_entropy(logits, y_query) + closs
+            
+            loss = F.cross_entropy(logits, y_query) + center_loss(center, feat, y_shot)
             acc = utils.compute_acc(logits, y_query)
-
-            # loss = loss / accumulation_steps
-            # loss.backward()
-            # if epoch % accumulation_steps == 0:
-            #     optimizer.step()
-            #     optimizer.zero_grad()
 
             optimizer.zero_grad()
             loss.backward()
