@@ -11,19 +11,19 @@ class MLPNetwork(nn.Module):
         self.fc1 = nn.Sequential(
                         nn.Linear(self.in_dim, self.hidden_size),
                         nn.BatchNorm1d(self.hidden_size),
-                        nn.ReLU())
+                        nn.LeakyReLU(0.1))
         self.fc2 = nn.Sequential(
                         nn.Linear(self.hidden_size, self.hidden_size),
                         nn.BatchNorm1d(self.hidden_size),
-                        nn.ReLU())
+                        nn.LeakyReLU(0.1))
         self.fc3_1 = nn.Sequential(
                         nn.Linear(self.hidden_size, self.hidden_size),
                         nn.BatchNorm1d(self.hidden_size),
-                        nn.ReLU())
+                        nn.LeakyReLU(0.1))
         self.fc3_2 = nn.Sequential(
                         nn.Linear(self.hidden_size, self.hidden_size),
                         nn.BatchNorm1d(self.hidden_size),
-                        nn.ReLU())
+                        nn.LeakyReLU(0.1))
         self.mlp = MLP(in_dim=self.hidden_size)
 
     def forward(self, x_shot, x_query):
@@ -52,27 +52,8 @@ class MLPNetwork(nn.Module):
         z7 = torch.randn(std.size()).cuda() * std + mu
         z8 = torch.randn(std.size()).cuda() * std + mu
         z9 = torch.randn(std.size()).cuda() * std + mu
-        z10 = torch.randn(std.size()).cuda() * std + mu
-        z11 = torch.randn(std.size()).cuda() * std + mu
-        z12 = torch.randn(std.size()).cuda() * std + mu
-        z13 = torch.randn(std.size()).cuda() * std + mu
-        z14 = torch.randn(std.size()).cuda() * std + mu
-        z15 = torch.randn(std.size()).cuda() * std + mu
-        z16 = torch.randn(std.size()).cuda() * std + mu
-        z17 = torch.randn(std.size()).cuda() * std + mu
-        z18 = torch.randn(std.size()).cuda() * std + mu
-        z19 = torch.randn(std.size()).cuda() * std + mu
-        z20 = torch.randn(std.size()).cuda() * std + mu
-        z21 = torch.randn(std.size()).cuda() * std + mu
-        z22 = torch.randn(std.size()).cuda() * std + mu
-        z23 = torch.randn(std.size()).cuda() * std + mu
-        z24 = torch.randn(std.size()).cuda() * std + mu
-        z25 = torch.randn(std.size()).cuda() * std + mu
-        z26 = torch.randn(std.size()).cuda() * std + mu
-        z27 = torch.randn(std.size()).cuda() * std + mu
-        z28 = torch.randn(std.size()).cuda() * std + mu
-        z29 = torch.randn(std.size()).cuda() * std + mu
-        return (z+z1+z2+z3+z4+z5+z6+z7+z8+z9 + z10+z11+z12+z13+z14+z15+z16+z17+z18+z19 + z20+z21+z22+z23+z24+z25+z26+z27+z28+z29) / 30.0
+        
+        return (z+z1+z2+z3+z4+z5+z6+z7+z8+z9) / 10.0
         
     
 class MLP(nn.Module):
