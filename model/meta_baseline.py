@@ -8,6 +8,7 @@ from model.convnet4 import Conv4
 import utils
 from model.tpn import LabelPropagation
 from model.sim_label_protage import SimLabel
+from model.mlp import MLPNetwork, MLP
 
 
 class MetaBaseline(nn.Module):
@@ -25,8 +26,9 @@ class MetaBaseline(nn.Module):
         else:
             self.temper = temper
 
-        self.lp = LabelPropagation(in_dim=in_dim)
-        
+        # self.lp = LabelPropagation(in_dim=in_dim)
+        self.mlp = MLPNetwork(in_dim=in_dim)
+        self.mlp1 = MLP(in_dim=in_dim)
         
     def forward(self, x_shot, y_shot, x_query, y_query):
         '''
@@ -48,10 +50,11 @@ class MetaBaseline(nn.Module):
         x_all = self.encoder(x_all)           # (batch_size, 512)
         x_shot, x_query = x_all[:len(x_shot)], x_all[-len(x_query):]
         
-        att_emb = self.lp(x_shot, y_shot, x_query, y_query)
-        x_shot, x_query = att_emb[:len(x_shot)], att_emb[-len(x_query):]
-        
-       
-        proto = x_shot.reshape(n_way, n_shot, -1).mean(dim=1)
+        # att_emb = self.lp(x_shot, y_shot, x_query, y_query)
+        # x_shot, x_query = att_emb[:len(x_shot)], att_emb[-len(x_query):]
+        # proto = x_shot.reshape(n_way, n_shot, -1).mean(dim=1)
+
+        proto, feature = self.mlp(x_shot)
+        x_query = self.mlp1(x_query)
         logits = utils.compute_logits(x_query, proto, metric=self.method, temp=self.temper)
-        return logits, proto, x_shot.reshape(n_way, n_shot, -1)
+        return logits, proto, feature.reshape(n_way, n_shot, -1)
