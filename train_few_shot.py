@@ -126,10 +126,10 @@ def main(config):
             y_shot, y_query = utils.make_nk_label(n_train_way, n_train_shot, n_query)    
             y_shot = y_shot.cuda();y_query = y_query.cuda()
             
-            logits, center, feat = model(x_shot, y_shot, x_query, y_query)
+            logits, class_center, shot_feature = model(x_shot, y_shot, x_query, y_query)
             logits = logits.view(-1, n_train_way)
             
-            loss = F.cross_entropy(logits, y_query) + center_loss(center, feat, y_shot)
+            loss = F.cross_entropy(logits, y_query)  + center_loss(class_center, shot_feature, y_shot)
             acc = utils.compute_acc(logits, y_query)
 
             optimizer.zero_grad()
