@@ -7,7 +7,7 @@ from model.WRN28 import WideResNet
 from model.convnet4 import Conv4
 import utils
 from model.tpn import LabelPropagation
-from model.mlp import MLPNetwork, MLP
+from model.mlp import MLPNetwork
 
 
 class MetaBaseline(nn.Module):
@@ -24,9 +24,14 @@ class MetaBaseline(nn.Module):
             self.temper = nn.Parameter(torch.tensor(temper))
         else:
             self.temper = temper
-
+            
+        # method_1
         # self.lp = LabelPropagation(in_dim=in_dim)
+
+        # method_2
         self.mlp = MLPNetwork(in_dim=in_dim)
+        self.bn_out = torch.nn.BatchNorm1d(in_dim)
+        self.Lrelu = nn.LeakyReLU(0.1)
         
     def forward(self, x_shot, y_shot, x_query, y_query):
         '''
@@ -48,11 +53,18 @@ class MetaBaseline(nn.Module):
         x_all = self.encoder(x_all)           # (batch_size, 512)
         x_shot, x_query = x_all[:len(x_shot)], x_all[-len(x_query):]
         
+        # method_1
         # att_emb = self.lp(x_shot, y_shot, x_query, y_query)
         # x_shot, x_query = att_emb[:len(x_shot)], att_emb[-len(x_query):]   
         # proto = x_shot.reshape(n_way, n_shot, -1).mean(dim=1)
-        
-        proto, feature_shot, feature_query = self.mlp(x_shot, x_query)
-        x_query = feature_query
+
+        # methon_2
+        sample_proto = self.mlp(x_shot, x_query)
+        x_shot = x_shot.view(x_shot.shape[0], x_shot.shape[1], -1).mean(dim=2)   # (batch_size, 512)
+        x_query = x_query.view(x_query.shape[0], x_query.shape[1], -1).mean(dim=2)   # (batch_size, 512)
+        x_shot, x_query = self.Lrelu(self.bn_out(x_shot)), self.Lrelu(self.bn_out(x_query))
+        proto = x_shot.reshape(n_way, n_shot, -1).mean(dim=1)
+        proto = 0.9*proto + 0.1*sample_proto
+
         logits = utils.compute_logits(x_query, proto, metric=self.method, temp=self.temper)
-        return logits, proto, feature_shot.reshape(n_way, n_shot, -1)
+        return logits, proto, x_shot.reshape(n_way, n_shot, -1)
