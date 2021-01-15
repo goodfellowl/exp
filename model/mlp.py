@@ -7,13 +7,13 @@ class MLPNetwork(nn.Module):
     def __init__(self, in_dim):
         super(MLPNetwork, self).__init__()
         self.in_dim = in_dim
-        self.hidden_size = 64
+        self.hidden_size = 256
         self.fc1 = nn.Sequential(
-                        nn.Linear(self.in_dim, self.hidden_size),
-                        nn.BatchNorm1d(self.hidden_size),
+                        nn.Linear(self.in_dim, self.hidden_size*2),
+                        nn.BatchNorm1d(self.hidden_size*2),
                         nn.LeakyReLU(0.1))
         self.fc2 = nn.Sequential(
-                        nn.Linear(self.hidden_size, self.hidden_size),
+                        nn.Linear(self.hidden_size*2, self.hidden_size),
                         nn.BatchNorm1d(self.hidden_size),
                         nn.LeakyReLU(0.1))
         self.fc3_1 = nn.Sequential(
